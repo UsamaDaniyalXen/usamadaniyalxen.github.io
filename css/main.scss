@@ -1,0 +1,1073 @@
+@import url("reset.css");
+
+$darkGrey: #111;
+
+$fontSize12px: 0.75em;
+$fontSize14px: 0.875em;
+$fontSize18px: 1.125em;
+$fontSize24px: 1.5em;
+$fontSize72px: 7vw;
+
+
+/*=======================*/
+/* MIXINS
+/*=======================*/
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes #{$animation-name} {
+    @content;
+  }
+  @-moz-keyframes #{$animation-name} {
+    @content;
+  }  
+  @-ms-keyframes #{$animation-name} {
+    @content;
+  }
+  @-o-keyframes #{$animation-name} {
+    @content;
+  }  
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}
+
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};      
+}
+
+@mixin transform($str) {
+  -webkit-transform: #{$str};
+  -moz-transform: #{$str};
+  -ms-transform: #{$str};
+  -o-transform: #{$str};
+  transform: #{$str};
+}
+
+@mixin transition($str) {
+  -webkit-transition: -webkit-#{$str};
+  -moz-transition: -moz-#{$str};
+  -ms-transition: -ms-#{$str};
+  -o-transition: -o-#{$str};
+  transition: #{$str};
+}
+
+
+/*=======================*/
+/* GENERAL RULES
+/*=======================*/
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow:hidden;
+  background-color: $darkGrey;
+  color: #FFF;
+  text-transform: uppercase;
+  font-family: "Source Sans Pro", sans-serif;
+  font-weight: 800;
+}
+
+body, #about {
+  @include transition("color 1s ease-out, background-color 1s ease-out");
+}
+
+@media (max-device-width: 1024px) and (orientation: portrait) {
+  #presentation, #about, #loading { display: none; pointer-events:none; }
+  body { background: url("../img/rotateDevice.png") no-repeat 50% 50%; background-color: $darkGrey !important; }
+}
+
+body.white { color: #222; background-color: #FFF; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+a:hover { @extend .glitch-text; opacity: .75; }
+
+button {
+  border:none;
+  background:none;
+  font-family: inherit;
+  outline: none;
+  cursor:pointer;
+  text-transform: inherit;
+  display: block;
+  color:inherit;
+  position: relative;
+}
+
+::-moz-selection {
+  background:  #FFF;
+  color:       $darkGrey;
+  text-shadow: none;
+}
+
+::selection {
+  background:  #FFF;
+  color:       $darkGrey;
+  text-shadow: none;
+}
+
+#canvas {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+h1 {
+  position:absolute;
+  font-size:$fontSize72px;
+  width:100vw;
+  line-height: 100vh;
+  white-space: nowrap;
+}
+
+.letter { position: relative; display: inline-block; }
+.letter.space { width:.375em; }
+
+#loading, #presentation, #about {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top:0;
+  left:0;
+}
+
+#loading { text-align: center; opacity:0 }
+#loading .letter { opacity: .5; width:.75em; }
+#loading .letter.passed { opacity: 1; }
+
+html:lang(fr) #loading h1:before { content:"Allumez vos enceintes"; }
+html:lang(en) #loading h1:before { content:"Turn your speakers on"; }
+
+html.isPhone:lang(fr) #loading h1:before { content:"Attention : Utilise des techniques exp\00e9 rimentales peu adapt\00e9 es aux performances d'un smartphone"; }
+html.isPhone:lang(en) #loading h1:before { content:"Warning : Uses experimental features ill-suited for smartphone performances"; }
+html.isMobile:lang(fr) #loading h1:after { content:"Touchez l'\00e9 cran"; }
+html.isMobile:lang(en) #loading h1:after { content:"Tap the screen"; }
+
+#loading h1:before,
+html.isMobile #loading h1:after {
+  position:absolute;
+  text-align: center;
+  opacity: 0;
+  font-weight: 500;
+  left: 0;
+  width: 100vw;
+  top: 3em;
+  font-size: .25em;
+
+  transition: opacity 1s ease-out;
+}
+
+html:not(.isMobile) #loading h1:before { font-size: .15em; top: 4.5em; }
+
+html.isMobile #loading.tap h1:after,
+body:not(.loaded) #loading h1:before { opacity: .5 }
+
+#scroll {
+  @extend %button;
+  bottom: 25px;
+  left: calc(50vw - 25px);
+  opacity: 0;
+}
+
+html.isPhone #scroll {
+  bottom: 5px;
+  transform: scale(.75);
+}
+
+#scroll .fa-stack {
+  @include animation("levitate 2s .25s ease-in-out infinite");
+}
+
+html:lang(fr) #scroll .fa-stack:after { content:"Scrollez"; left: -0.85em; }
+html:lang(en) #scroll .fa-stack:after { content:"Scroll"; left: -0.175em; }
+
+#scroll .fa-stack:after {
+  font-size: .75em;
+  font-weight: 500;
+  opacity: .5;
+  position: absolute;
+  top: -2.375em;
+}
+
+%button {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  text-align: center;
+  line-height: 50px;
+  white-space: nowrap;
+}
+
+#menu, #soundSwitch, #languageSwitch, #progressBar { visibility: hidden }
+
+#soundSwitch {
+  @extend %button;
+  top: calc(2.5vw + 50px);
+  right: 2.5vw;
+  cursor:pointer;
+  font-size:2em;
+  z-index: 2;
+  opacity: .5;
+}
+
+#soundSwitch:hover { opacity: 1; }
+#soundSwitch i { left:0; top:0; width:100%; height:100%; line-height:50px; position: absolute; @include transition("top .15s ease-out, opacity .15s ease-out"); }
+#soundSwitch.off .soundOn { top:-50px; opacity: 0; }
+#soundSwitch.on .soundOff { top:50px; opacity: 0; }
+
+#languageSwitch {
+  @extend %button;
+  opacity: .5;
+  z-index: 2;
+  font-weight: 500;
+  right: 2.5vw;
+  top: calc(2.5vw + 100px);
+}
+
+#languageSwitch:hover { opacity: 1; }
+#languageSwitch a { opacity: .5; }
+html:lang(fr) #languageSwitch .fr, html:lang(en) #languageSwitch .en { opacity: 1; font-weight: 700; }
+html:not(:lang(fr)) #languageSwitch .fr:hover, html:not(:lang(en)) #languageSwitch .en:hover { font-style: italic; }
+
+#about {
+  right: 2.5vw;
+  left: auto;
+  width: 50px;
+  height: 50px;
+  top: 2.5vw;
+  position: fixed;
+
+  background: rgba(255, 255, 255, 0);
+  color:$darkGrey;
+  //clip: rect(2.5vw, 97.5vw, 100px, calc(97.5vw - 50px));
+  text-align: center;
+
+  @include transition("background .5s .5s ease-out, width .5s .5s ease-out, height .5s .5s ease-out, right .5s .5s ease-out, top .5s .5s ease-out");
+}
+
+#about.open {
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  z-index: 4;
+
+  background: rgba(255, 255, 255, .95);
+  //clip: rect(0, 100vw, 100vh, 0);
+  @include transition("background .25s ease-out, width .25s ease-out, height .25s ease-out, right .25s ease-ou, left .25s ease-out");
+}
+body.white #about { color: #FFF; }
+body.white #about.open { background: rgba(0, 0, 0, .95); }
+body:not(.white) #about h2 { color: rgba(34, 34, 34, .5); }
+
+#menu {
+  @extend %button;
+  right: 2.5vw;
+  top: 2.5vw;
+  cursor:pointer;
+  font-size:2em;
+  z-index: 2;
+  opacity: .5;
+  position: fixed;
+
+  @include transition("transform .25s .5s ease-out, color .25s .5s ease-out");
+}
+
+#menu:hover { opacity: 1; }
+#about.open #menu { @include transform("rotate(45deg)"); @include transition("transform .25s ease-out, color .25s ease-out"); }
+
+#menu, body.white #about.open #menu { color:#FFF; }
+#about.open #menu, body.white #menu { color:$darkGrey; }
+
+#about .container {
+  top: 0;
+  left: 0;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0;
+  pointer-events:none;
+
+  @include transform("scale(1.5)");
+  @include transition("all .5s ease-out");
+}
+
+html.ie10 #about .container { display: none }
+
+#about.open .container {
+  opacity: 1;
+  pointer-events:auto;
+
+  @include transform("scale(1)");
+  @include transition("all .5s .75s ease-out");
+}
+
+html.ie10 #about.open .container { display: block; }
+
+#about h1 {
+  line-height: 1em;
+  top: 30vh;
+  animation: none;
+}
+
+#about h2 {
+  top: calc(30vh + 4em);
+  line-height: 1em;
+  width: 100%;
+}
+
+#about p {
+  font-weight: 100;
+  text-transform: initial;
+  width: 80vw;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 1.25rem;
+}
+
+#about p:first-of-type { margin-top: 55vh; }
+#about p:last-of-type { margin-top: 2.5em; }
+#about p:last-of-type span { opacity: .5; }
+
+@media (max-width: 1366px) {
+  #about p { font-size: 1.6vw; }
+  html:not(.isPhone) #about p:first-of-type { margin-top: 50vh; }
+}
+
+#progressBar {
+  position: absolute;
+  //height: calc(100vh - 5vw - 115px - 2em);
+  background-color: currentColor;
+  width: 1px;
+  right: calc(2.5vw + 25px);
+  top: calc(2.5vw + 165px);
+  opacity: .5;
+
+  @include transition("height 1s ease-in-out, background-color 1s ease-out");
+}
+
+#progressBar:after {
+  content: attr(data-progress);
+  position: absolute;
+  bottom: -2em;
+  width: 80px;
+  text-align: center;
+  font-size: .9em;
+  font-weight: 500;
+  left: -40px;
+
+  @include transition("color 1s ease-out");
+}
+
+/*=======================*/
+/* COMPONENTS
+/*=======================*/
+/* Containers ------------*/
+.screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  bottom:0;
+  left:0;
+  text-align: center;
+  display: none;
+  pointer-events:none;
+}
+
+.screen.active { display: block; pointer-events:auto; }
+
+h2 {
+  position: absolute;
+  font-weight: 700;
+  font-size: 2vw;
+  font-style: italic;
+  line-height: 100vh;
+  top:4.5vw;
+  color:rgba(255, 255, 255, .5);
+}
+
+h1 {
+  @include animation("levitate 4s ease-in-out infinite");
+}
+
+h2 {
+  @include animation("levitate 4s .5s ease-in-out infinite");
+}
+
+@include keyframes(levitate) {
+  0%, 100% { @include transform("translateY(0)"); }
+  50% { @include transform("translateY(-25px)"); }
+}
+
+.word {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+
+#screen3 h1.first {
+  line-height: 1em;
+  top: calc(50% - 1em);
+
+  -webkit-transform-origin: 50% 0;
+  transform-origin: 50% 0;
+}
+
+#screen3 h1 .word:nth-child(2) { -webkit-transform-origin: 0 50%; transform-origin: 0 50%; }
+
+#screen3 h1.first .word { text-shadow: 0 0 0 rgba(255, 0, 0, 0), 0 0 0 rgba(0, 255, 255, 0); }
+
+.glitch-text, #loading .letter {
+  @include animation("glitch-text 2s infinite linear alternate-reverse");
+}
+
+.glitch {
+  margin: 0 auto;
+  @include transform("scale3d(1, 1, 1)");
+ 
+  &:before,
+  &:after {
+    content: attr(data-text);
+    position: absolute;
+    top: calc(50% - .5em);
+    left: 1px;
+    right: 0;
+    overflow: hidden;
+    color: #EAEAEA;
+    clip: rect(0, 900px, 0, 0);
+    line-height: 1em;
+  }
+
+  &:before {
+    text-shadow: 2px 0 rgba(0, 255, 255, .5);
+    @include animation("glitch-effect 3s infinite linear alternate-reverse");
+  }
+
+  &:after {
+    text-shadow: -2px 0 rgba(255, 0, 0, .5);
+    @include animation("glitch-effect 2s infinite linear alternate-reverse");
+  }
+}
+
+@include keyframes(glitch-effect) { 
+  @for $i from 0 through 20 {
+      #{percentage($i * (1 / 20))} {
+          clip:rect(random(100)+px, 9999px, random(100)+px, 0);
+      }
+  }    
+}
+
+@include keyframes(glitch-text) { 
+  0%, 9%, 11%, 100% { font-weight: 700; }
+  10% { font-weight: 100; }
+  24%, 26% { font-style: none; } 
+  25% { font-style: italic; } 
+  49%, 51% { letter-spacing: 0; } 
+  50% { letter-spacing: 4px; }
+  75%, 85% { text-shadow: 0 0 0 rgba(255, 0, 0, 0), 0 0 0 rgba(0, 255, 255, 0); } 
+  80% { text-shadow: 12px 0 0 rgba(255, 0, 0, 1), -12px 0 0 rgba(0, 255, 255, 1); }   
+}
+
+#screen4 h2 {
+  line-height: 1em;
+  font-size: 5vw;
+  left: 5vw;
+  top: 5vw;
+}
+
+#screen4 h2.second .letter {
+  color: #FFF;
+  font-style: initial;
+  font-weight: 800;
+}
+
+/********/
+$cubeSize: 16vw;
+
+#scene, #cube, .face {
+  position: absolute;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+#scene {
+  width:100vw;
+  height:100vh;
+  perspective: 800px;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+#cube {
+  width: $cubeSize;
+  height: $cubeSize;
+  left:calc(50vw - #{$cubeSize / 2});
+  top:calc(50vh - #{$cubeSize / 2} + 2.5vw);
+
+  @include transform("rotateX(-30deg) rotateY(30deg)");
+}
+
+.face {
+  width:100%;
+  height:100%;
+  border:1px solid;
+  border-color:#FFF;
+  background:transparent;
+  overflow: hidden;
+
+  -webkit-transform-origin: 0 0;
+  transform-origin: 0 0;
+  
+  @include transition("border-color 1s 1s ease-out, background 1s 1s ease-out");
+}
+
+.face:before, .face:after {
+  content:"";
+  position:absolute;
+  width:1px;
+  height:$cubeSize * 1.5;
+  background:rgba(255, 255, 255, .25);
+  left:0;
+  top:0;
+
+  -webkit-transform-origin: 0 0;
+  transform-origin: 0 0;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d; 
+  
+  @include transition("background 1s ease-out");
+}
+
+.face:after { @include transform("rotateZ(-45deg)"); }
+.face:before { @include transform("translateX(#{$cubeSize}) rotate(45deg)"); }
+
+.front { @include transform("translateZ(#{$cubeSize / 2})"); }
+.back { @include transform("translateZ(#{-1 * $cubeSize / 2})"); }
+.top { @include transform("rotateX(90deg) translateY(-50%)"); }
+.bottom { @include transform("rotateX(-90deg) translateY(-50%)"); top:100% }
+.left { @include transform("rotateY(90deg) translateX(-50%)"); }
+.right { @include transform("rotateY(-90deg) translateX(-50%)"); left: 100% }
+
+#cube.solid .face { background:rgba(255, 255, 255, 1); border-color: transparent; }
+#cube.solid .face:before,
+#cube.solid .face:after { background: transparent; }
+
+#cube.solid .front { background: #FFF; }
+#cube.solid .back { background: #777; }
+#cube.solid .top { background: #DDD; }
+#cube.solid .bottom { background: #555; }
+#cube.solid .left { background: #999; }
+#cube.solid .right { background: #BBB; }
+
+
+/**********/
+/* PIXEL ART
+/**********/
+$size: 8px;
+$charaWidth: 24;
+
+$darkGray1: #232323;
+$darkGray2: #1B1B1B;
+$lightGray1: #D5D5D5;
+$lightGray2: #A7A7A7;
+
+$red1: #6A0000;
+$red2: #590000;
+$blue1: #0080C0;
+$blue2: #006B9F;
+
+$hair1: #8A5629;
+$hair2: #59371E;
+
+$eyes: (
+  me: #201812,
+  npc1: #135261,
+  npc2: #175637,
+  npc3: #685454
+);
+
+$skin: (
+  me: #644022,
+  npc: #f4AE67,
+  npc2: #F9D0A8
+);
+
+$skinShadow: (
+  me: #50321A,
+  npc: #A27547,
+  npc2: #C29C76
+);
+
+$blush: (
+  me: #814E47,
+  npc: #F68663,
+  npc2: #F78981
+);
+
+
+@function face($skinColor, $skinShadowColor, $blushColor) {
+  $string:
+  // Skin
+  12*$size 6*$size $skinColor,
+  13*$size 6*$size $skinColor,
+  14*$size 6*$size $skinColor,
+  10*$size 7*$size $skinColor,
+  11*$size 7*$size $skinColor,
+  12*$size 7*$size $skinColor,
+  13*$size 7*$size $skinColor,
+  14*$size 7*$size $skinColor,
+  15*$size 7*$size $skinColor,
+  19*$size 13*$size $skinColor,
+  20*$size 13*$size $skinColor,
+  // Skin Shadow
+  9*$size 5*$size $skinShadowColor,
+  10*$size 5*$size $skinShadowColor,
+  11*$size 5*$size $skinShadowColor,
+  12*$size 5*$size $skinShadowColor,
+  13*$size 5*$size $skinShadowColor,
+  14*$size 5*$size $skinShadowColor,
+  15*$size 5*$size $skinShadowColor,
+  9*$size 6*$size $skinShadowColor,
+  9*$size 7*$size $skinShadowColor,
+  13*$size 8*$size $skinShadowColor,
+  5*$size 15*$size $skinShadowColor,
+  5*$size 16*$size $skinShadowColor,
+  // Blush
+  10*$size 6*$size $blushColor,
+  11*$size 6*$size $blushColor,
+  15*$size 6*$size $blushColor;
+    
+  @return $string;
+}
+
+@function hairBase($hairColor:$darkGray1, $hairShadowColor:$darkGray2) {
+  $string:
+  // Hair Shadow Color
+  7*$size 1*$size $hairShadowColor,
+  8*$size 1*$size $hairShadowColor,
+  6*$size 2*$size $hairShadowColor,
+  7*$size 2*$size $hairShadowColor,
+  8*$size 2*$size $hairShadowColor,
+  9*$size 2*$size $hairShadowColor,
+  6*$size 3*$size $hairShadowColor,
+  7*$size 3*$size $hairShadowColor,
+  8*$size 3*$size $hairShadowColor,
+  6*$size 4*$size $hairShadowColor,
+  7*$size 4*$size $hairShadowColor,
+  6*$size 5*$size $hairShadowColor,
+  7*$size 5*$size $hairShadowColor,
+  7*$size 6*$size $hairShadowColor,
+  8*$size 6*$size $hairShadowColor,
+  // Hair Color
+  9*$size 1*$size $hairColor,
+  10*$size 1*$size $hairColor,
+  11*$size 1*$size $hairColor,
+  12*$size 1*$size $hairColor,
+  10*$size 2*$size $hairColor,
+  11*$size 2*$size $hairColor,
+  12*$size 2*$size $hairColor,
+  13*$size 2*$size $hairColor,
+  14*$size 2*$size $hairColor,
+  15*$size 2*$size $hairColor,
+  9*$size 3*$size $hairColor,
+  10*$size 3*$size $hairColor,
+  11*$size 3*$size $hairColor,
+  12*$size 3*$size $hairColor,
+  13*$size 3*$size $hairColor,
+  14*$size 3*$size $hairColor,
+  15*$size 3*$size $hairColor,
+  16*$size 3*$size $hairColor,
+  8*$size 4*$size $hairColor,
+  9*$size 4*$size $hairColor,
+  10*$size 4*$size $hairColor,
+  11*$size 4*$size $hairColor,
+  12*$size 4*$size $hairColor,
+  13*$size 4*$size $hairColor,
+  14*$size 4*$size $hairColor,
+  15*$size 4*$size $hairColor,
+  16*$size 4*$size $hairColor,
+  8*$size 5*$size $hairColor,
+  16*$size 5*$size $hairColor,
+  16*$size 6*$size $hairColor;
+  
+  @return $string;
+}
+
+@function eyes($eyeColor) {
+  $string:
+  // Eyes
+  11*$size 5*$size $eyeColor,
+  15*$size 5*$size $eyeColor;
+    
+  @return $string;
+}
+
+@function jacket($light1:$lightGray1, $light2:$lightGray2, $dark1:$darkGray1, $dark2:$darkGray2) {
+  $string:
+  // Light Color 1
+  13*$size 9*$size $light1,
+  13*$size 10*$size $light1,
+  13*$size 11*$size $light1,
+  13*$size 12*$size $light1,
+  13*$size 13*$size $light1,
+  13*$size 14*$size $light1,
+  13*$size 15*$size $light1,
+  10*$size 16*$size $light1,
+  11*$size 16*$size $light1,
+  12*$size 16*$size $light1,
+  13*$size 16*$size $light1,
+  14*$size 16*$size $light1,
+  15*$size 16*$size $light1,
+  // Light Color 2
+  18*$size 13*$size $light2,
+  8*$size 16*$size $light2,
+  9*$size 16*$size $light2,
+  // Dark Color 1
+  11*$size 8*$size $dark1,
+  12*$size 8*$size $dark1,
+  14*$size 8*$size $dark1,
+  15*$size 8*$size $dark1,
+  11*$size 9*$size $dark1,
+  12*$size 9*$size $dark1,
+  14*$size 9*$size $dark1,
+  15*$size 9*$size $dark1,
+  11*$size 10*$size $dark1,
+  12*$size 10*$size $dark1,
+  14*$size 10*$size $dark1,
+  15*$size 10*$size $dark1,
+  11*$size 11*$size $dark1,
+  12*$size 11*$size $dark1,
+  14*$size 11*$size $dark1,
+  15*$size 11*$size $dark1,
+  11*$size 12*$size $dark1,
+  12*$size 12*$size $dark1,
+  14*$size 12*$size $dark1,
+  15*$size 12*$size $dark1,
+  11*$size 13*$size $dark1,
+  12*$size 13*$size $dark1,
+  14*$size 13*$size $dark1,
+  15*$size 13*$size $dark1,
+  17*$size 13*$size $dark1,
+  11*$size 14*$size $dark1,
+  12*$size 14*$size $dark1,
+  14*$size 14*$size $dark1,
+  15*$size 14*$size $dark1,
+  11*$size 15*$size $dark1,
+  12*$size 15*$size $dark1,
+  14*$size 15*$size $dark1,
+  15*$size 15*$size $dark1,
+  // Dark Color 2
+  8*$size 8*$size $dark2,
+  9*$size 8*$size $dark2,
+  10*$size 8*$size $dark2,
+  7*$size 9*$size $dark2,
+  8*$size 9*$size $dark2,
+  9*$size 9*$size $dark2,
+  10*$size 9*$size $dark2,
+  7*$size 10*$size $dark2,
+  8*$size 10*$size $dark2,
+  9*$size 10*$size $dark2,
+  10*$size 10*$size $dark2,
+  7*$size 11*$size $dark2,
+  8*$size 11*$size $dark2,
+  9*$size 11*$size $dark2,
+  10*$size 11*$size $dark2,
+  16*$size 11*$size $dark2,
+  6*$size 12*$size $dark2,
+  8*$size 12*$size $dark2,
+  9*$size 12*$size $dark2,
+  10*$size 12*$size $dark2,
+  16*$size 12*$size $dark2,
+  6*$size 13*$size $dark2,
+  8*$size 13*$size $dark2,
+  9*$size 13*$size $dark2,
+  10*$size 13*$size $dark2,
+  16*$size 13*$size $dark2,
+  6*$size 14*$size $dark2,
+  8*$size 14*$size $dark2,
+  9*$size 14*$size $dark2,
+  10*$size 14*$size $dark2,
+  8*$size 15*$size $dark2,
+  9*$size 15*$size $dark2,
+  10*$size 15*$size $dark2;
+
+  @return $string;
+}
+
+@function pants($dark1:$darkGray1, $dark2:$darkGray2) {
+  $string:
+  // Dark Color 1
+  9*$size 17*$size $dark1,
+  10*$size 17*$size $dark1,
+  14*$size 17*$size $dark1,
+  15*$size 17*$size $dark1,
+  9*$size 18*$size $dark1,
+  10*$size 18*$size $dark1,
+  14*$size 18*$size $dark1,
+  15*$size 18*$size $dark1,
+  9*$size 19*$size $dark1,
+  10*$size 19*$size $dark1,
+  14*$size 19*$size $dark1,
+  15*$size 19*$size $dark1,
+  9*$size 20*$size $dark1,
+  10*$size 20*$size $dark1,
+  14*$size 20*$size $dark1,
+  15*$size 20*$size $dark1,
+  8*$size 22*$size $dark1,
+  9*$size 22*$size $dark1,
+  14*$size 22*$size $dark1,
+  15*$size 22*$size $dark1,
+  8*$size 23*$size $dark1,
+  9*$size 23*$size $dark1,
+  14*$size 23*$size $dark1,
+  15*$size 23*$size $dark1,
+  8*$size 24*$size $dark1,
+  9*$size 24*$size $dark1,
+  14*$size 24*$size $dark1,
+  15*$size 24*$size $dark1,
+  // Dark Color 2
+  8*$size 17*$size $dark2,
+  11*$size 17*$size $dark2,
+  12*$size 17*$size $dark2,
+  13*$size 17*$size $dark2,
+  8*$size 18*$size $dark2,
+  13*$size 18*$size $dark2,
+  8*$size 19*$size $dark2,
+  13*$size 19*$size $dark2,
+  8*$size 20*$size $dark2,
+  13*$size 20*$size $dark2,
+  8*$size 21*$size $dark2,
+  9*$size 21*$size $dark2,
+  14*$size 21*$size $dark2,
+  15*$size 21*$size $dark2;
+    
+  @return $string;
+}
+
+.chara {
+  display: inline-block;
+  position:absolute;
+  width: $size;
+  height: $size;
+  margin: 0;
+  opacity: 0;
+}
+
+.npc1 { left:$charaWidth*$size; }
+.npc2 { left:$charaWidth*$size*2; }
+.npc3 { left:$charaWidth*$size*3; }
+
+.me {
+  box-shadow:
+    // -- Head
+    hairBase(),
+    // Hair Color
+    8*$size 7*$size $hair1,
+    4*$size 8*$size $hair1,
+    7*$size 8*$size $hair1,
+    16*$size 8*$size $hair1,
+    5*$size 9*$size $hair1,
+    6*$size 9*$size $hair1,
+    // Hair Shadow Color
+    6*$size 6*$size $hair2,
+    5*$size 7*$size $hair2,
+    6*$size 7*$size $hair2,
+    7*$size 7*$size $hair2,
+    16*$size 7*$size $hair2,
+    5*$size 8*$size $hair2,
+    6*$size 8*$size $hair2,
+    
+    // -- Face
+    face(map-get($skin, me), map-get($skinShadow, me), map-get($blush, me)),
+    // -- Jacket
+    jacket(),
+    // -- Pants
+    pants();
+}
+
+.npc1 {
+  box-shadow:
+    // -- Head
+    hairBase(),
+    6*$size 6*$size $darkGray2,
+    7*$size 7*$size $darkGray2,
+    8*$size 7*$size $darkGray2,
+    
+    // -- Face
+    face(map-get($skin, npc), map-get($skinShadow, npc), map-get($blush, npc)),
+    // -- Jacket
+    jacket($lightGray1, $lightGray2, $red1, $red2),
+    // -- Pants
+    pants();
+}
+
+.npc2 {
+  box-shadow:
+    // -- Head
+    hairBase($hair1, $hair2),
+    6*$size 6*$size $hair2,
+    7*$size 7*$size $hair2,
+    8*$size 7*$size $hair2,
+    
+    // -- Face
+    face(map-get($skin, npc2), map-get($skinShadow, npc2), map-get($blush, npc2)),
+    // -- Jacket
+    jacket($lightGray1, $lightGray2, $lightGray1, $lightGray2),
+    // -- Pants
+    pants();
+}
+
+.npc3 {
+  box-shadow:
+    // -- Head
+    hairBase(),
+    6*$size 6*$size $darkGray2,
+    6*$size 7*$size $darkGray2,
+    7*$size 7*$size $darkGray2,
+    8*$size 7*$size $darkGray2,
+    7*$size 8*$size $darkGray2,
+    6*$size 8*$size $darkGray2,
+    6*$size 9*$size $darkGray2,
+    6*$size 10*$size $darkGray2,
+    6*$size 11*$size $darkGray2,
+    5*$size 12*$size $darkGray2,
+    7*$size 12*$size $darkGray2,
+    5*$size 13*$size $darkGray2,
+    7*$size 13*$size $darkGray2,
+    
+    // -- Face
+    face(map-get($skin, npc), map-get($skinShadow, npc), map-get($blush, npc)),
+    // -- Jacket
+    jacket($blue1, $blue2, $blue1, $blue2),
+    // -- Pants
+    pants();
+}
+
+.chara:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: $size;
+  height: $size;
+  margin: 0;
+
+  @include animation("blink 4s infinite linear alternate-reverse");
+}
+
+.chara.me:after { box-shadow: eyes(map-get($eyes, me)); }
+.chara.npc1:after { box-shadow: eyes(map-get($eyes, npc1)); -webkit-animation-delay: 1s; animation-delay: 1s; }
+.chara.npc3:after { box-shadow: eyes(map-get($eyes, npc2)); -webkit-animation-delay: 2s; animation-delay: 2s; }
+.chara.npc2:after { box-shadow: eyes(map-get($eyes, npc3)); -webkit-animation-delay: 3s; animation-delay: 3s; }
+
+@include keyframes(blink) { 
+  0%, 8%, 12%, 78%, 82%, 100% { opacity:1 }
+  10%, 80% { opacity:0 }
+}
+
+#charas {
+  width: $charaWidth * $size * 4;
+  height: $charaWidth * $size;
+  position: absolute;
+  left: calc(50vw - #{$charaWidth} * #{$size} * 2);
+  bottom: 10vw;
+
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
+}
+
+@media (max-device-width: 1024px) {
+  #charas { bottom: 12vw; }
+}
+
+html.isPhone #charas { bottom: 15vw }
+
+#charasWrapper {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  left:0;
+  top:0;
+  pointer-events: none;
+}
+
+html.isPhone #charasWrapper {
+  @include transform("scale(.5)");
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
+  bottom: 6vw;
+  top:auto;
+}
+
+.bubble {
+  font-family: "Press Start 2P", cursive;
+  background:rgba(0, 0, 0, .8);
+  color:#FFF;
+  position: absolute;
+  padding: 1em;
+  opacity: 0;
+}
+
+.bubble.question {
+  top: calc(50% - 6em);
+  background: rgba(140, 90, 195, .8);
+  @include animation("levitate 4s .5s ease-in-out infinite");
+}
+
+html.isPhone .bubble.question { font-size: .75em }
+
+@media (max-width: 1600px) {
+  .bubble.question { top: calc(50% - 4em); }
+}
+
+@media (max-device-width: 1024px) {
+  .bubble.question { top: calc(50% - 7em); }
+}
+
+#screen9 .question { left: calc(50% - 21.5em); }
+#screen10 .question { left: calc(50% - 6em); cursor: pointer; }
+
+.bubble.speech { top: -6em; left: $charaWidth * $size / 2; }
+
+.bubble.speech:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2em;
+  border: 1em solid rgba(0, 0, 0, .75);
+  border-bottom-color: transparent;
+  border-right-color: transparent;
+}
+
+.bubble.credits {
+  opacity: 0;
+  font-size: .5em;
+  right: 50px;
+  text-align: right;
+  line-height: 1.5em;
+  font-family: inherit;
+  font-weight: 500;
+  margin-top: -0.5em;
+  pointer-events:none;
+
+  @include transition("all .5s ease-out");
+}
+
+#soundSwitch:hover .bubble.credits, .bubble.credits span { opacity: .5; }
+#soundSwitch:hover .bubble.credits { right: 75px; }
+
+#screen6 h1, #screen7 h1, #screen9 h1, #screen10 h1 { top:-1.5em }
+#screen8 h1 { top:1em; line-height: 1em }
+@media (max-device-width: 1024px) {
+  #screen6 h1, #screen7 h1, #screen9 h1, #screen10 h1 { top:-2.5em }
+}
+
+html.isPhone {
+  & #screen6 h1, & #screen7 h1, & #screen9 h1, & #screen10 h1 { top:-2em }
+}
